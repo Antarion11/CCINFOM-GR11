@@ -9,14 +9,16 @@ CREATE TABLE Customer (
     DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Product Table
+-- 2. Product Table (UPDATED to match Java classes)
 CREATE TABLE Product (
     ProductID INT AUTO_INCREMENT PRIMARY KEY,
+    ItemCode VARCHAR(50),
     ProductName VARCHAR(100) NOT NULL,
-    Manufacturer VARCHAR(100) NOT NULL,
-    `Condition` VARCHAR(50) NOT NULL, -- New, Used, Refurbished
+    Brand VARCHAR(100),
+    Grade VARCHAR(50),
+    Category VARCHAR(50),
     AvailableQuantity INT DEFAULT 0,
-    InventoryStatus VARCHAR(20) DEFAULT 'In Stock', -- In Stock, Low Stock, Out of Stock
+    LowStockThreshold INT DEFAULT 5,
     Price DECIMAL(10,2) NOT NULL
 );
 
@@ -43,13 +45,14 @@ CREATE TABLE SalesTransaction (
     FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
 
--- 5. Return Request Table
+-- 5. Return Request Table (UPDATED to match Java classes)
 CREATE TABLE ReturnRequest (
     RequestID INT AUTO_INCREMENT PRIMARY KEY,
     CustomerID INT NOT NULL,
     ProductID INT NOT NULL,
     SalesTransactionID INT NOT NULL, -- Link to original purchase
     ReturnReason TEXT NOT NULL,
+    ReportedCondition VARCHAR(100),
     RequestDate DATETIME DEFAULT CURRENT_TIMESTAMP,
     Status ENUM('Pending', 'Approved', 'Rejected', 'Processing', 'Completed') DEFAULT 'Pending',
     FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
@@ -83,3 +86,17 @@ CREATE TABLE ReturnTransport (
     FOREIGN KEY (RequestID) REFERENCES ReturnRequest(RequestID),
     FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID)
 );
+
+-- Insert sample data for testing
+INSERT INTO Customer (FirstName, LastName, PhoneNumber, Email, Address) VALUES
+('John', 'Doe', '123-4567', 'john@email.com', '123 Main St'),
+('Jane', 'Smith', '987-6543', 'jane@email.com', '456 Oak Ave');
+
+INSERT INTO Product (ItemCode, ProductName, Brand, Grade, Category, Price, AvailableQuantity, LowStockThreshold) VALUES
+('MK001', 'Gundam RX-78', 'Bandai', 'Master', 'Robot', 2500.00, 10, 5),
+('MK002', 'EVA Unit-01', 'Kotobukiya', 'Premium', 'Robot', 3500.00, 3, 2),
+('MK003', 'Zaku II', 'Bandai', 'Standard', 'Robot', 1800.00, 15, 5);
+
+INSERT INTO Supplier (CompanyName, ContactPerson, PhoneNumber, Email, Address) VALUES
+('Bandai Co.', 'Mr. Tanaka', '111-2222', 'orders@bandai.com', 'Tokyo, Japan'),
+('Kotobukiya Ltd.', 'Ms. Yamamoto', '333-4444', 'sales@kotobukiya.co.jp', 'Osaka, Japan');
