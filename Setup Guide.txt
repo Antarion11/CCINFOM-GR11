@@ -1,38 +1,50 @@
-Step 1: Get the Project Files
+Step 1: Get All Project Files
+Copy all of the following files into a single folder on the new machine.
 
-Copy all the project files into a single folder on the new machine:
-
-Customer.java
-
-DBConnection.java
+Java Source Files (.java):
 
 Main.java
 
+DBConnection.java
+
+Customer.java
+
 Product.java
+
+Supplier.java
+
+Order.java
+
+OrderItem.java
+
+StockLog.java
+
+SupplierProduct.java
 
 ReturnRequest.java
 
-SalesTransaction.java
+TransportLog.java
 
-ConnectionTest.java
+ConnectionTest.java (This file is optional, for testing)
+
+
+SQL Script:
 
 db_setup.sql
 
-mysql-connector-j-8.0.33.jar (The MySQL Driver)
+MySQL Driver:
+
+mysql-connector-j-8.0.33.jar
 
 Step 2: Configure the Database Connection
-
 This is a mandatory step. Open DBConnection.java in a text editor and update these lines to match the new machine's MySQL server:
 
-// Make sure the port (e.g., 3307 or 3306) matches the local MySQL server
-private static final String URL = "jdbc:mysql://localhost:3307/modelkit_returns?useSSL=false&serverTimezone=UTC";
+// Make sure the port (e.g., 3306) matches the local MySQL server
+private static final String URL = "jdbc:mysql://localhost:3306/modelkit_returns?useSSL=false&serverTimezone=UTC";
 
 // Make sure this is the root password for the local MySQL server
 private static final String PASS = "YOUR_NEW_PASSWORD";
-
-
 Step 3: Create the Database Schema
-
 This is a mandatory step.
 
 Open MySQL Workbench and connect to your server (using the port and password you set in Step 2).
@@ -44,26 +56,18 @@ Click the lightning bolt icon in the toolbar to execute the entire script.
 This creates the modelkit_returns database and all required tables.
 
 Step 4: Compile the Java Code
-
-Open a terminal (Command Prompt, PowerShell, or Terminal) and navigate to your project folder.
+Open a terminal (Command Prompt, PowerShell, or Terminal) and navigate (cd) to your project folder.
 
 Run the javac command to compile all your .java files into .class files:
 
+
 javac *.java
-
-
 Step 5: Run the Application
-
 In the same terminal, run the java command using the classpath (-cp) flag. This is required to link the MySQL driver.
 
-On Windows:
+On Windows: (Note the . and ;)
+
+
 
 java -cp ".;mysql-connector-j-8.0.33.jar" Main
-
-
-On macOS/Linux:
-
-java -cp ".:mysql-connector-j-8.0.33.jar" Main
-
-
 The application menu will now appear, fully connected to the database.
