@@ -48,7 +48,7 @@ public class Product {
 
     @Override
     public String toString() {
-        return String.format("%d | %s | %s | %s | %s | ₱%.2f | qty=%d",
+        return String.format("%d | %s | %s | %s | %s | P%.2f | qty=%d",
                 productID, itemCode, brand, productName, grade, price, availableQuantity);
     }
 }       
