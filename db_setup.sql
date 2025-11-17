@@ -1,4 +1,4 @@
- 1. Drop the database if it already exists (to start fresh)
+
 DROP DATABASE IF EXISTS modelkit_returns;
 
 -- 2. Create the new database
