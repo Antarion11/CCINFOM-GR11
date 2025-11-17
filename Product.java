@@ -1,54 +1,39 @@
-
-
 public class Product {
     private int productID;
-    private String itemCode;
     private String productName;
-    private String brand;
-    private String grade;
-    private String category;
-    private double price;
+    private String manufacturer;
+    private String condition;
     private int availableQuantity;
-    private int lowStockThreshold;
+    private String inventoryStatus;
 
-    public Product(int productID, String itemCode, String productName, String brand,
-                   String grade, String category, double price, int availableQuantity, int lowStockThreshold) {
+    public Product(int productID, String productName, String manufacturer, String condition,
+                   int availableQuantity, String inventoryStatus) {
         this.productID = productID;
-        this.itemCode = itemCode;
         this.productName = productName;
-        this.brand = brand;
-        this.grade = grade;
-        this.category = category;
-        this.price = price;
+        this.manufacturer = manufacturer;
+        this.condition = condition;
         this.availableQuantity = availableQuantity;
-        this.lowStockThreshold = lowStockThreshold;
+        this.inventoryStatus = inventoryStatus;
     }
 
     // Getters
     public int getProductID() { return productID; }
-    public String getItemCode() { return itemCode; }
     public String getProductName() { return productName; }
-    public String getBrand() { return brand; }
-    public String getGrade() { return grade; }
-    public String getCategory() { return category; }
-    public double getPrice() { return price; }
+    public String getManufacturer() { return manufacturer; }
+    public String getCondition() { return condition; }
     public int getAvailableQuantity() { return availableQuantity; }
-    public int getLowStockThreshold() { return lowStockThreshold; }
+    public String getInventoryStatus() { return inventoryStatus; }
 
-    // Setters (for fields that might change)
-    public void setAvailableQuantity(int availableQuantity) {
-        this.availableQuantity = availableQuantity;
-    }
-    public void setPrice(double price) {
-        this.price = price;
-    }
-    public void setLowStockThreshold(int lowStockThreshold) {
-        this.lowStockThreshold = lowStockThreshold;
-    }
+    // Setters
+    public void setProductName(String productName) { this.productName = productName; }
+    public void setManufacturer(String manufacturer) { this.manufacturer = manufacturer; }
+    public void setCondition(String condition) { this.condition = condition; }
+    public void setAvailableQuantity(int availableQuantity) { this.availableQuantity = availableQuantity; }
+    public void setInventoryStatus(String inventoryStatus) { this.inventoryStatus = inventoryStatus; }
 
     @Override
     public String toString() {
-        return String.format("%d | %s | %s | %s | %s | P%.2f | qty=%d",
-                productID, itemCode, brand, productName, grade, price, availableQuantity);
+        return String.format("%d | %s | %s | %s | qty=%d",
+                productID, manufacturer, productName, condition, availableQuantity);
     }
-}       
+}
