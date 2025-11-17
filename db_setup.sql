@@ -1,4 +1,18 @@
--- 1. Customer Table
+-- This script will create everything from scratch.
+-- It ensures all tables are created inside the correct database.
+
+-- 1. Drop the database if it already exists (to start fresh)
+DROP DATABASE IF EXISTS modelkit_returns;
+
+-- 2. Create the new database
+CREATE DATABASE modelkit_returns;
+
+-- 3. Select the new database to use it for all following commands
+USE modelkit_returns;
+
+-- 4. Create all your tables (copied from your dbappli.sql)
+
+-- Customer Table
 CREATE TABLE Customer (
     CustomerID INT AUTO_INCREMENT PRIMARY KEY,
     FirstName VARCHAR(50) NOT NULL,
@@ -9,7 +23,7 @@ CREATE TABLE Customer (
     DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Product Table (UPDATED to match Java classes)
+-- Product Table
 CREATE TABLE Product (
     ProductID INT AUTO_INCREMENT PRIMARY KEY,
     ItemCode VARCHAR(50),
@@ -22,7 +36,7 @@ CREATE TABLE Product (
     Price DECIMAL(10,2) NOT NULL
 );
 
--- 3. Supplier Table
+-- Supplier Table
 CREATE TABLE Supplier (
     SupplierID INT AUTO_INCREMENT PRIMARY KEY,
     CompanyName VARCHAR(100) NOT NULL,
@@ -32,7 +46,7 @@ CREATE TABLE Supplier (
     Address TEXT NOT NULL
 );
 
--- 4. Sales Transaction Table
+-- Sales Transaction Table
 CREATE TABLE SalesTransaction (
     TransactionID INT AUTO_INCREMENT PRIMARY KEY,
     CustomerID INT NOT NULL,
@@ -45,7 +59,7 @@ CREATE TABLE SalesTransaction (
     FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
 
--- 5. Return Request Table (UPDATED to match Java classes)
+-- Return Request Table
 CREATE TABLE ReturnRequest (
     RequestID INT AUTO_INCREMENT PRIMARY KEY,
     CustomerID INT NOT NULL,
@@ -60,7 +74,7 @@ CREATE TABLE ReturnRequest (
     FOREIGN KEY (SalesTransactionID) REFERENCES SalesTransaction(TransactionID)
 );
 
--- 6. Stock Log Table
+-- Stock Log Table
 CREATE TABLE StockLog (
     LogID INT AUTO_INCREMENT PRIMARY KEY,
     SupplierID INT NOT NULL,
@@ -73,7 +87,7 @@ CREATE TABLE StockLog (
     FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
 
--- 7. Return Transport Table
+-- Return Transport Table
 CREATE TABLE ReturnTransport (
     TransportID INT AUTO_INCREMENT PRIMARY KEY,
     RequestID INT NOT NULL UNIQUE, -- One-to-one with ReturnRequest
@@ -87,7 +101,7 @@ CREATE TABLE ReturnTransport (
     FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID)
 );
 
--- Insert sample data for testing
+-- 5. Insert sample data for testing
 INSERT INTO Customer (FirstName, LastName, PhoneNumber, Email, Address) VALUES
 ('John', 'Doe', '123-4567', 'john@email.com', '123 Main St'),
 ('Jane', 'Smith', '987-6543', 'jane@email.com', '456 Oak Ave');
@@ -100,9 +114,3 @@ INSERT INTO Product (ItemCode, ProductName, Brand, Grade, Category, Price, Avail
 INSERT INTO Supplier (CompanyName, ContactPerson, PhoneNumber, Email, Address) VALUES
 ('Bandai Co.', 'Mr. Tanaka', '111-2222', 'orders@bandai.com', 'Tokyo, Japan'),
 ('Kotobukiya Ltd.', 'Ms. Yamamoto', '333-4444', 'sales@kotobukiya.co.jp', 'Osaka, Japan');
-
-
-CREATE DATABASE modelkit_returns;
-
-
-USE modelkit_returns;
