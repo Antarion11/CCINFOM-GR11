@@ -490,8 +490,8 @@ public class menu extends javax.swing.JFrame {
             .addGap(0, 275, Short.MAX_VALUE)
         );
 
-        jTabbedPane1.addTab("Sales", salesPanel);
-
+        jTabbedPane1.addTab("Order", salesPanel);
+        
         javax.swing.GroupLayout stockPanelLayout = new javax.swing.GroupLayout(stockPanel);
         stockPanel.setLayout(stockPanelLayout);
         stockPanelLayout.setHorizontalGroup(
