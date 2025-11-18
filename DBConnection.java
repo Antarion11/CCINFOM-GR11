@@ -23,10 +23,7 @@ public class DBConnection {
             throw new RuntimeException("Failed to load JDBC driver", e);
         }
     }
-    /**
-     * Gets a connection to the database.
-     * This will now work because the static block has already loaded the driver.
-     */
+
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASS);
     }

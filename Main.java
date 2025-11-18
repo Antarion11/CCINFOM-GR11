@@ -1500,7 +1500,6 @@ public class Main {
     private static void generateReturnsAnalysisReport() {
         System.out.println("\n--- Returns Analysis Report ---");
         try (Connection conn = DBConnection.getConnection()) {
-            // Optional: Filter by year/month if needed, currently shows all-time stats
             String sql = "SELECT p.ProductName, rr.ReturnReason, COUNT(rr.RequestID) as TotalReturns " +
                     "FROM ReturnRequests rr " +
                     "JOIN Products p ON rr.ProductID = p.ProductID " +

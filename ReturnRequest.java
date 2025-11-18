@@ -8,8 +8,6 @@ public class ReturnRequest {
     private String returnReason;
     private LocalDateTime requestDate;
     private String status;
-    // Removed 'reportedCondition' as it's not in your db_setup.sql
-
     public ReturnRequest(int requestID, int orderID, int customerID, int productID,
                          String returnReason, LocalDateTime requestDate, String status) {
         this.requestID = requestID;
