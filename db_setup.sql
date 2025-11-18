@@ -83,14 +83,14 @@
         FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
     );
 
-    CREATE TABLE Transport (
+    CREATE TABLE Transports (
         TransportID INT AUTO_INCREMENT PRIMARY KEY,
         ContactPerson VARCHAR(100),
         Phone VARCHAR(20),
         CourierCompany VARCHAR(100) NOT NULL
     );
 
-    CREATE TABLE TransportLog (
+    CREATE TABLE TransportLogs (
         LogID INT AUTO_INCREMENT PRIMARY KEY,
         TransportID INT,
         RequestID INT,
@@ -120,6 +120,7 @@
     (1, 3, 'B-ZAKU2', 1200.00),
     (2, 2, 'K-EVA01', 2500.00);
 
-    INSERT INTO Transport (CourierCompany, ContactPerson, Phone) VALUES
-    ('LBC Express', 'Mr. Dela Cruz', '02-8858-5999'),
-    ('J&T Express', 'Ms. Reyes', '02-8911-5282');
+    INSERT INTO Transports (ContactPerson, Phone, CourierCompany) VALUES
+    ('Juan Dela Paz', '09171234567', 'Lalamove'),
+    ('Raniel Lopez', '09281239876', 'GrabExpress'),
+    ('Ezra Ramirez', '09351234598', 'J&T Express');
