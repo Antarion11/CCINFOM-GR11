@@ -21,7 +21,7 @@ public class Main {
                 switch (choice) {
                     case 1 -> handleRecordManagement();
                     case 2 -> handleTransactions();
-                    case 3 -> handleReports(); // Placeholder
+                    case 3 -> handleReports();
                     case 0 -> {
                         System.out.println("Goodbye!");
                         return;
@@ -89,10 +89,6 @@ public class Main {
         }
     }
 
-    private static void handleReports() {
-        System.out.println("\n--- Reports Menu ---");
-        System.out.println("All reports are not yet implemented.");
-    }
 
     private static void handleProductManagement() {
         while (true) {
@@ -1167,7 +1163,7 @@ public class Main {
             String newPhone = sc.nextLine();
             if (newPhone.isBlank()) newPhone = phone;
 
-            // Note: CompanyName is not updatable here, but Contact and Phone are.
+            // Note: CompanyName is not updatable here, but Contact and Phone are
 
             String updateSql = "UPDATE Transport SET ContactPerson = ?, Phone = ? WHERE TransportID = ?";
             try (PreparedStatement stmt = conn.prepareStatement(updateSql)) {
@@ -1472,6 +1468,169 @@ public class Main {
                     System.out.println("Error closing connection: " + e.getMessage());
                 }
             }
+        }
+    }
+
+    private static void handleReports() {
+        while (true) {
+            System.out.println("\n--- Reports Menu ---");
+            System.out.println("1. Returns Analysis Report");
+            System.out.println("2. Customer Engagement Report");
+            System.out.println("3. Supplier Order Report");
+            System.out.println("4. Transport Efficiency Report");
+            System.out.println("0. Back to Main Menu");
+            System.out.print("Choose: ");
+            try {
+                int choice = Integer.parseInt(sc.nextLine());
+                switch (choice) {
+                    case 1 -> generateReturnsAnalysisReport();
+                    case 2 -> generateCustomerEngagementReport();
+                    case 3 -> generateSupplierOrderReport();
+                    case 4 -> generateTransportEfficiencyReport();
+                    case 0 -> { return; }
+                    default -> System.out.println("Invalid choice!");
+                }
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+    }
+
+    private static void generateReturnsAnalysisReport() {
+        System.out.println("\n--- Returns Analysis Report ---");
+        try (Connection conn = DBConnection.getConnection()) {
+            // Optional: Filter by year/month if needed, currently shows all-time stats
+            String sql = "SELECT p.ProductName, rr.ReturnReason, COUNT(rr.RequestID) as TotalReturns " +
+                    "FROM ReturnRequests rr " +
+                    "JOIN Products p ON rr.ProductID = p.ProductID " +
+                    "GROUP BY p.ProductName, rr.ReturnReason " +
+                    "ORDER BY TotalReturns DESC";
+
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+
+                System.out.println("Product Name | Return Reason | Count");
+                System.out.println("--------------------------------------------------");
+                boolean found = false;
+                while (rs.next()) {
+                    found = true;
+                    System.out.printf("%s | %s | %d%n",
+                            rs.getString("ProductName"),
+                            rs.getString("ReturnReason"),
+                            rs.getInt("TotalReturns"));
+                }
+                if (!found) System.out.println("No return data found.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error generating report: " + e.getMessage());
+        }
+    }
+
+    private static void generateCustomerEngagementReport() {
+        System.out.println("\n--- Customer Engagement Report ---");
+        try (Connection conn = DBConnection.getConnection()) {
+            System.out.print("Enter Year (e.g., 2025): ");
+            int year = Integer.parseInt(sc.nextLine());
+            System.out.print("Enter Month (1-12): ");
+            int month = Integer.parseInt(sc.nextLine());
+
+            String sql = "SELECT c.FirstName, c.LastName, p.ProductName, SUM(oi.Quantity) as TotalBought " +
+                    "FROM Customers c " +
+                    "JOIN Orders o ON c.CustomerID = o.CustomerID " +
+                    "JOIN OrderItems oi ON o.OrderID = oi.OrderID " +
+                    "JOIN Products p ON oi.ProductID = p.ProductID " +
+                    "WHERE YEAR(o.OrderDate) = ? AND MONTH(o.OrderDate) = ? " +
+                    "GROUP BY c.CustomerID, p.ProductID " +
+                    "ORDER BY c.CustomerID, TotalBought DESC";
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, year);
+                stmt.setInt(2, month);
+                ResultSet rs = stmt.executeQuery();
+
+                System.out.printf("\n--- Sales for %d-%02d ---%n", year, month);
+                System.out.println("Customer | Product | Qty Bought");
+                System.out.println("--------------------------------------------------");
+                boolean found = false;
+                while (rs.next()) {
+                    found = true;
+                    System.out.printf("%s %s | %s | %d%n",
+                            rs.getString("FirstName"),
+                            rs.getString("LastName"),
+                            rs.getString("ProductName"),
+                            rs.getInt("TotalBought"));
+                }
+                if (!found) System.out.println("No sales data found for this period.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error generating report: " + e.getMessage());
+        }
+    }
+
+    private static void generateSupplierOrderReport() {
+        System.out.println("\n--- Supplier Order Report ---");
+        try (Connection conn = DBConnection.getConnection()) {
+            System.out.print("Enter Year (e.g., 2025): ");
+            int year = Integer.parseInt(sc.nextLine());
+            System.out.print("Enter Month (1-12): ");
+            int month = Integer.parseInt(sc.nextLine());
+
+            String sql = "SELECT s.CompanyName, SUM(sl.Quantity) as TotalOrdered " +
+                    "FROM Suppliers s " +
+                    "JOIN StockLogs sl ON s.SupplierID = sl.SupplierID " +
+                    "WHERE YEAR(sl.TransactionDate) = ? AND MONTH(sl.TransactionDate) = ? " +
+                    "GROUP BY s.SupplierID " +
+                    "ORDER BY TotalOrdered DESC";
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, year);
+                stmt.setInt(2, month);
+                ResultSet rs = stmt.executeQuery();
+
+                System.out.printf("\n--- Orders to Suppliers %d-%02d ---%n", year, month);
+                System.out.println("Supplier | Total Items Ordered");
+                System.out.println("--------------------------------------------------");
+                boolean found = false;
+                while (rs.next()) {
+                    found = true;
+                    System.out.printf("%s | %d%n",
+                            rs.getString("CompanyName"),
+                            rs.getInt("TotalOrdered"));
+                }
+                if (!found) System.out.println("No stock orders found for this period.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error generating report: " + e.getMessage());
+        }
+    }
+
+    private static void generateTransportEfficiencyReport() {
+        System.out.println("\n--- Transport Efficiency Report ---");
+        try (Connection conn = DBConnection.getConnection()) {
+            // Shows total completed deliveries per courier
+            String sql = "SELECT t.CourierCompany, COUNT(tl.LogID) as CompletedDeliveries " +
+                    "FROM Transport t " +
+                    "JOIN TransportLog tl ON t.TransportID = tl.TransportID " +
+                    "WHERE tl.ArrivalDate IS NOT NULL " +
+                    "GROUP BY t.TransportID " +
+                    "ORDER BY CompletedDeliveries DESC";
+
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+
+                System.out.println("Courier Company | Completed Deliveries");
+                System.out.println("--------------------------------------------------");
+                boolean found = false;
+                while (rs.next()) {
+                    found = true;
+                    System.out.printf("%s | %d%n",
+                            rs.getString("CourierCompany"),
+                            rs.getInt("CompletedDeliveries"));
+                }
+                if (!found) System.out.println("No completed deliveries found.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error generating report: " + e.getMessage());
         }
     }
 }
