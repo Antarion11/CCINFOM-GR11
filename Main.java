@@ -1,5 +1,7 @@
 import java.sql.*;
 import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Main {
     private static Scanner sc = new Scanner(System.in);
@@ -88,7 +90,6 @@ public class Main {
             }
         }
     }
-
 
     private static void handleProductManagement() {
         while (true) {
@@ -1163,8 +1164,6 @@ public class Main {
             String newPhone = sc.nextLine();
             if (newPhone.isBlank()) newPhone = phone;
 
-            // Note: CompanyName is not updatable here, but Contact and Phone are
-
             String updateSql = "UPDATE Transport SET ContactPerson = ?, Phone = ? WHERE TransportID = ?";
             try (PreparedStatement stmt = conn.prepareStatement(updateSql)) {
                 stmt.setString(1, newContact);
@@ -1478,6 +1477,7 @@ public class Main {
             System.out.println("2. Customer Engagement Report");
             System.out.println("3. Supplier Order Report");
             System.out.println("4. Transport Efficiency Report");
+            System.out.println("5. Dead Stock Report (Decision Support)");
             System.out.println("0. Back to Main Menu");
             System.out.print("Choose: ");
             try {
@@ -1487,6 +1487,7 @@ public class Main {
                     case 2 -> generateCustomerEngagementReport();
                     case 3 -> generateSupplierOrderReport();
                     case 4 -> generateTransportEfficiencyReport();
+                    case 5 -> generateDeadStockReport();
                     case 0 -> { return; }
                     default -> System.out.println("Invalid choice!");
                 }
@@ -1519,7 +1520,12 @@ public class Main {
                             rs.getString("ReturnReason"),
                             rs.getInt("TotalReturns"));
                 }
-                if (!found) System.out.println("No return data found.");
+                if (!found) {
+                    System.out.println("No return data found.");
+                    return;
+                }
+
+                askToExport("ReturnsAnalysis.csv", sql);
             }
         } catch (Exception e) {
             System.out.println("Error generating report: " + e.getMessage());
@@ -1539,14 +1545,12 @@ public class Main {
                     "JOIN Orders o ON c.CustomerID = o.CustomerID " +
                     "JOIN OrderItems oi ON o.OrderID = oi.OrderID " +
                     "JOIN Products p ON oi.ProductID = p.ProductID " +
-                    "WHERE YEAR(o.OrderDate) = ? AND MONTH(o.OrderDate) = ? " +
+                    "WHERE YEAR(o.OrderDate) = " + year + " AND MONTH(o.OrderDate) = " + month + " " +
                     "GROUP BY c.CustomerID, p.ProductID " +
                     "ORDER BY c.CustomerID, TotalBought DESC";
 
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, year);
-                stmt.setInt(2, month);
-                ResultSet rs = stmt.executeQuery();
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
 
                 System.out.printf("\n--- Sales for %d-%02d ---%n", year, month);
                 System.out.println("Customer | Product | Qty Bought");
@@ -1560,7 +1564,11 @@ public class Main {
                             rs.getString("ProductName"),
                             rs.getInt("TotalBought"));
                 }
-                if (!found) System.out.println("No sales data found for this period.");
+                if (!found) {
+                    System.out.println("No sales data found for this period.");
+                    return;
+                }
+                askToExport("CustomerEngagement_" + year + "_" + month + ".csv", sql);
             }
         } catch (Exception e) {
             System.out.println("Error generating report: " + e.getMessage());
@@ -1578,14 +1586,12 @@ public class Main {
             String sql = "SELECT s.CompanyName, SUM(sl.Quantity) as TotalOrdered " +
                     "FROM Suppliers s " +
                     "JOIN StockLogs sl ON s.SupplierID = sl.SupplierID " +
-                    "WHERE YEAR(sl.TransactionDate) = ? AND MONTH(sl.TransactionDate) = ? " +
+                    "WHERE YEAR(sl.TransactionDate) = " + year + " AND MONTH(sl.TransactionDate) = " + month + " " +
                     "GROUP BY s.SupplierID " +
                     "ORDER BY TotalOrdered DESC";
 
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, year);
-                stmt.setInt(2, month);
-                ResultSet rs = stmt.executeQuery();
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
 
                 System.out.printf("\n--- Orders to Suppliers %d-%02d ---%n", year, month);
                 System.out.println("Supplier | Total Items Ordered");
@@ -1597,7 +1603,11 @@ public class Main {
                             rs.getString("CompanyName"),
                             rs.getInt("TotalOrdered"));
                 }
-                if (!found) System.out.println("No stock orders found for this period.");
+                if (!found) {
+                    System.out.println("No stock orders found for this period.");
+                    return;
+                }
+                askToExport("SupplierOrders_" + year + "_" + month + ".csv", sql);
             }
         } catch (Exception e) {
             System.out.println("Error generating report: " + e.getMessage());
@@ -1627,10 +1637,94 @@ public class Main {
                             rs.getString("CourierCompany"),
                             rs.getInt("CompletedDeliveries"));
                 }
-                if (!found) System.out.println("No completed deliveries found.");
+                if (!found) {
+                    System.out.println("No completed deliveries found.");
+                    return;
+                }
+                askToExport("TransportEfficiency.csv", sql);
             }
         } catch (Exception e) {
             System.out.println("Error generating report: " + e.getMessage());
+        }
+    }
+
+    private static void generateDeadStockReport() {
+        System.out.println("\n--- Dead Stock Report (Decision Support) ---");
+        System.out.println("Items with stock > 0 but NO sales in the last 90 days.");
+        System.out.println("Recommendation: Put these items on clearance or return to supplier.");
+
+        try (Connection conn = DBConnection.getConnection()) {
+            String sql = "SELECT p.ProductName, p.Manufacturer, p.AvailableQuantity, sp.UnitCost, (p.AvailableQuantity * sp.UnitCost) as TiedUpCapital " +
+                    "FROM Products p " +
+                    "JOIN SupplierProducts sp ON p.ProductID = sp.ProductID " +
+                    "WHERE p.AvailableQuantity > 0 " +
+                    "AND p.ProductID NOT IN (" +
+                    "    SELECT DISTINCT ProductID FROM OrderItems oi " +
+                    "    JOIN Orders o ON oi.OrderID = o.OrderID " +
+                    "    WHERE o.OrderDate >= DATE_SUB(NOW(), INTERVAL 90 DAY)" +
+                    ")";
+
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+
+                System.out.println("Product | Manufacturer | Qty | Unit Cost | Tied Capital");
+                System.out.println("---------------------------------------------------------------");
+                boolean found = false;
+                while (rs.next()) {
+                    found = true;
+                    System.out.printf("%s | %s | %d | %.2f | %.2f%n",
+                            rs.getString("ProductName"),
+                            rs.getString("Manufacturer"),
+                            rs.getInt("AvailableQuantity"),
+                            rs.getDouble("UnitCost"),
+                            rs.getDouble("TiedUpCapital"));
+                }
+                if (!found) {
+                    System.out.println("Great news! No dead stock found.");
+                    return;
+                }
+                askToExport("DeadStockReport.csv", sql);
+            }
+        } catch (Exception e) {
+            System.out.println("Error generating report: " + e.getMessage());
+        }
+    }
+
+    private static void askToExport(String filename, String sqlQuery) {
+        System.out.print("\nDo you want to export this report to CSV? (y/n): ");
+        String choice = sc.nextLine();
+        if (choice.equalsIgnoreCase("y")) {
+            try (Connection conn = DBConnection.getConnection();
+                 Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sqlQuery);
+                 FileWriter writer = new FileWriter(filename)) {
+
+                ResultSetMetaData meta = rs.getMetaData();
+                int colCount = meta.getColumnCount();
+
+                // Write Header
+                for (int i = 1; i <= colCount; i++) {
+                    writer.write(meta.getColumnLabel(i));
+                    if (i < colCount) writer.write(",");
+                }
+                writer.write("\n");
+
+                // Write Data
+                while (rs.next()) {
+                    for (int i = 1; i <= colCount; i++) {
+                        String val = rs.getString(i);
+                        if (val == null) val = "";
+                        // Escape commas in data
+                        if (val.contains(",")) val = "\"" + val + "\"";
+                        writer.write(val);
+                        if (i < colCount) writer.write(",");
+                    }
+                    writer.write("\n");
+                }
+                System.out.println("Report exported successfully to " + filename);
+            } catch (IOException | SQLException e) {
+                System.out.println("Error exporting file: " + e.getMessage());
+            }
         }
     }
 }
