@@ -97,7 +97,7 @@
         DeliveryDate DATE,
         ArrivalDate DATE,
         Status VARCHAR(50) DEFAULT 'Pending',
-        FOREIGN KEY (TransportID) REFERENCES Transport(TransportID),
+        FOREIGN KEY (TransportID) REFERENCES Transports(TransportID),
         FOREIGN KEY (RequestID) REFERENCES ReturnRequests(RequestID)
     );
 
