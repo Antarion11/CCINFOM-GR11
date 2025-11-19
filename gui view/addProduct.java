@@ -19,6 +19,8 @@ public class addProduct extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(addProduct.class.getName());
     
     private menu parentMenu;
+    
+    private int productID = -1;
     /**
      * Creates new form addProd
      */
@@ -31,6 +33,21 @@ public class addProduct extends javax.swing.JFrame {
         statusField = new JComboBox<>(new String[]{"In Stock", "Low Stock", "Out of Stock"});
         setTitle("Add New Product");
         
+    }
+    // constructor for updating product
+    public addProduct(menu parent, int id) {
+        this(parent);
+        this.productID = id;
+        this.setTitle("Update Product");
+        suppField.setVisible(false);
+        prodCodeField.setVisible(false);
+        costField.setVisible(false);
+        suppLabel.setVisible(false);
+        prodCodeLabel.setVisible(false);
+        costLabel.setVisible(false);
+        pesoLabel.setVisible(false);
+        
+        loadProductData(id);
     }
     
     public addProduct() {
@@ -62,13 +79,13 @@ public class addProduct extends javax.swing.JFrame {
         Condition = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         intQtyField = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
+        suppLabel = new javax.swing.JLabel();
         suppField = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
+        prodCodeLabel = new javax.swing.JLabel();
         prodCodeField = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
+        costLabel = new javax.swing.JLabel();
         costField = new javax.swing.JTextField();
-        jLabel9 = new javax.swing.JLabel();
+        pesoLabel = new javax.swing.JLabel();
         submitBttn = new javax.swing.JButton();
         condField = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
@@ -95,19 +112,19 @@ public class addProduct extends javax.swing.JFrame {
 
         intQtyField.addActionListener(this::intQtyFieldActionPerformed);
 
-        jLabel6.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel6.setText("Supplier ID");
+        suppLabel.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        suppLabel.setText("Supplier ID");
 
         suppField.addActionListener(this::suppFieldActionPerformed);
 
-        jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel7.setText("Product Code");
+        prodCodeLabel.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        prodCodeLabel.setText("Product Code");
 
-        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel8.setText("Unit Cost");
+        costLabel.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        costLabel.setText("Unit Cost");
 
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel9.setText("Php");
+        pesoLabel.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        pesoLabel.setText("Php");
 
         submitBttn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         submitBttn.setText("Submit");
@@ -135,15 +152,15 @@ public class addProduct extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel8)
+                        .addComponent(costLabel)
                         .addComponent(statusField, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(Condition)
                         .addComponent(manufacturer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(manuField)
-                        .addComponent(jLabel7)
+                        .addComponent(prodCodeLabel)
                         .addGroup(jPanel1Layout.createSequentialGroup()
-                            .addComponent(jLabel9)
+                            .addComponent(pesoLabel)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(costField))
                         .addComponent(prodNameField)
@@ -151,7 +168,7 @@ public class addProduct extends javax.swing.JFrame {
                         .addComponent(condField, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(intQtyField, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel6)
+                    .addComponent(suppLabel)
                     .addComponent(prodCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(suppField, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -182,19 +199,19 @@ public class addProduct extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel6)
+                .addComponent(suppLabel)
                 .addGap(1, 1, 1)
                 .addComponent(suppField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel7)
+                .addComponent(prodCodeLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(prodCodeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel8)
+                .addComponent(costLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(costField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel9))
+                    .addComponent(pesoLabel))
                 .addGap(27, 27, 27)
                 .addComponent(submitBttn)
                 .addContainerGap(32, Short.MAX_VALUE))
@@ -234,37 +251,54 @@ public class addProduct extends javax.swing.JFrame {
 
     private void submitBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitBttnActionPerformed
         String name = prodNameField.getText().trim();
-        String manufacturer = manuField.getText().trim();
-        String condition = condField.getSelectedItem().toString();
-        String status = statusField.getSelectedItem().toString();
-        String supplierCode = suppField.getText().trim();
+    String manufacturer = manuField.getText().trim();
+    
+    // Get values from JComboBoxes
+    String condition = condField.getSelectedItem().toString(); 
+    String status = statusField.getSelectedItem().toString(); 
+    
+    // Variables for parsing
+    int quantity;
+    
+    try {
+        quantity = Integer.parseInt(intQtyField.getText().trim());
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Quantity must be a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-     
-        int quantity, supplierId;
-        double unitCost;
+    if (name.isEmpty() || manufacturer.isEmpty() || condition.isEmpty() || status.isEmpty() || quantity < 0) {
+        JOptionPane.showMessageDialog(this, "Please ensure product name, manufacturer, condition, status, and quantity are valid.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    Connection conn = null;
+    try {
+        conn = DBConnection.getConnection();
         
-        try {
-            quantity = Integer.parseInt(intQtyField.getText().trim());
-            supplierId = Integer.parseInt(suppField.getText().trim());
-            unitCost = Double.parseDouble(costField.getText().trim());
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Quantity, Supplier ID, and Unit Cost must be valid numbers.", "Input Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+     
+        if (this.productID == -1) {
+            
+            String supplierCode = suppField.getText().trim();
+            int supplierId; 
+            double unitCost; 
 
-       
-        if (name.isEmpty() || manufacturer.isEmpty() || condition.isEmpty() || status.isEmpty() || supplierCode.isEmpty() || quantity <= 0 || supplierId <= 0) {
-            JOptionPane.showMessageDialog(this, "Please ensure all fields are filled and valid.", "Validation Error", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+            try {
+                supplierId = Integer.parseInt(suppField.getText().trim());
+                unitCost = Double.parseDouble(costField.getText().trim());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Supplier ID and Unit Cost must be valid numbers for adding a product.", "Input Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (supplierCode.isEmpty() || supplierId <= 0 || unitCost <= 0) {
+                 JOptionPane.showMessageDialog(this, "Supplier details are required for a new product.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+                 return;
+            }
 
-        Connection conn = null;
-        try {
-            conn = DBConnection.getConnection();
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false); 
             int newProductId = -1;
 
-            
+            // Insert into Products table
             String productSql = "INSERT INTO Products (ProductName, Manufacturer, `Condition`, AvailableQuantity, InventoryStatus) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement productStmt = conn.prepareStatement(productSql, Statement.RETURN_GENERATED_KEYS)) {
                 productStmt.setString(1, name);
@@ -273,13 +307,10 @@ public class addProduct extends javax.swing.JFrame {
                 productStmt.setInt(4, quantity);
                 productStmt.setString(5, status); 
 
-                int rows = productStmt.executeUpdate();
-                
-                if (rows > 0) {
-                    ResultSet keys = productStmt.getGeneratedKeys();
-                    if (keys.next()) {
-                        newProductId = keys.getInt(1);
-                    }
+                productStmt.executeUpdate();
+                ResultSet keys = productStmt.getGeneratedKeys();
+                if (keys.next()) {
+                    newProductId = keys.getInt(1);
                 }
             }
 
@@ -287,7 +318,7 @@ public class addProduct extends javax.swing.JFrame {
                 throw new SQLException("Failed to retrieve generated Product ID.");
             }
 
-            // Link to SupplierProducts table 
+            // Link to SupplierProducts table
             String linkSql = "INSERT INTO SupplierProducts (SupplierID, ProductID, SupplierProductCode, UnitCost) VALUES (?, ?, ?, ?)";
             try (PreparedStatement linkStmt = conn.prepareStatement(linkSql)) {
                 linkStmt.setInt(1, supplierId);
@@ -298,39 +329,60 @@ public class addProduct extends javax.swing.JFrame {
             }
 
             conn.commit(); 
-            
-            JOptionPane.showMessageDialog(this, 
-                "Product added and linked successfully!\nNew Product ID: " + newProductId, 
-                "Success", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Product added and linked successfully!\nNew Product ID: " + newProductId, "Success", JOptionPane.INFORMATION_MESSAGE);
 
-            if (parentMenu != null) {
-                parentMenu.loadProductData(); 
-            }
-            this.dispose();
 
-        } catch (SQLException e) {
+        } else {
+          
             
-            if (conn != null) {
-                try {
-                    conn.rollback(); 
-                } catch (SQLException rollbackEx) {
-                    logger.log(java.util.logging.Level.SEVERE, "Rollback failed", rollbackEx);
-                }
-            }
-            logger.log(java.util.logging.Level.SEVERE, "Error adding product", e);
-            JOptionPane.showMessageDialog(this, 
-                "Database Error: Product not added.\n" + e.getMessage(), 
-                "SQL Transaction Error", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException closeEx) {
-                    logger.log(java.util.logging.Level.WARNING, "Failed to close connection or reset auto-commit", closeEx);
+            String updateSql = "UPDATE Products SET ProductName=?, Manufacturer=?, `Condition`=?, AvailableQuantity=?, InventoryStatus=? WHERE ProductID=?";
+
+            try (PreparedStatement stmt = conn.prepareStatement(updateSql)) {
+                stmt.setString(1, name);
+                stmt.setString(2, manufacturer);
+                stmt.setString(3, condition); 
+                stmt.setInt(4, quantity);
+                stmt.setString(5, status); 
+                stmt.setInt(6, this.productID); // Set the WHERE clause ID
+                
+                int rows = stmt.executeUpdate();
+                if (rows > 0) {
+                     JOptionPane.showMessageDialog(this, "Product updated successfully!\nProduct ID: " + this.productID, "Success", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                     JOptionPane.showMessageDialog(this, "Product update failed. Record not found.", "Update Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
+        
+        // Refresh the main menu table and close the window (common to both Add/Update)
+        if (parentMenu != null) {
+            parentMenu.loadProductData(); 
+        }
+        this.dispose();
+
+    } catch (SQLException e) {
+        // Rollback only if a connection exists and we were attempting an INSERT
+        if (conn != null && this.productID == -1) {
+            try {
+                conn.rollback(); 
+            } catch (SQLException rollbackEx) {
+                logger.log(java.util.logging.Level.SEVERE, "Rollback failed", rollbackEx);
+            }
+        }
+        logger.log(java.util.logging.Level.SEVERE, "Error processing product record", e);
+        JOptionPane.showMessageDialog(this, 
+            "Database Error: Product not saved/updated.\n" + e.getMessage(), 
+            "SQL Transaction Error", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        if (conn != null) {
+            try {
+                conn.setAutoCommit(true);
+                conn.close();
+            } catch (SQLException closeEx) {
+                logger.log(java.util.logging.Level.WARNING, "Failed to close connection or reset auto-commit", closeEx);
+            }
+        }
+    }
     
     }//GEN-LAST:event_submitBttnActionPerformed
 
@@ -342,6 +394,29 @@ public class addProduct extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_intQtyFieldActionPerformed
 
+    
+    public void loadProductData(int id) {
+        String sql = "SELECT ProductName, Manufacturer, `Condition`, AvailableQuantity, InventoryStatus FROM Products WHERE ProductID = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Populate fields with current data
+                    prodNameField.setText(rs.getString("ProductName"));
+                    manuField.setText(rs.getString("Manufacturer"));
+                    condField.setSelectedItem(rs.getString("Condition"));
+                    intQtyField.setText(String.valueOf(rs.getInt("AvailableQuantity")));
+                    statusField.setSelectedItem(rs.getString("InventoryStatus"));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(java.util.logging.Level.SEVERE, "Error loading product data for update.", e);
+            JOptionPane.showMessageDialog(this, "Error loading product data: " + e.getMessage(), "DB Load Error", JOptionPane.ERROR_MESSAGE);
+        }
+    
+    }
     /**
      * @param args the command line arguments
      */
@@ -371,22 +446,22 @@ public class addProduct extends javax.swing.JFrame {
     private javax.swing.JLabel Condition;
     private javax.swing.JComboBox<String> condField;
     private javax.swing.JTextField costField;
+    private javax.swing.JLabel costLabel;
     private javax.swing.JTextField intQtyField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField manuField;
     private javax.swing.JLabel manufacturer;
+    private javax.swing.JLabel pesoLabel;
     private javax.swing.JTextField prodCodeField;
+    private javax.swing.JLabel prodCodeLabel;
     private javax.swing.JLabel prodName;
     private javax.swing.JTextField prodNameField;
     private javax.swing.JComboBox<String> statusField;
     private javax.swing.JButton submitBttn;
     private javax.swing.JTextField suppField;
+    private javax.swing.JLabel suppLabel;
     // End of variables declaration//GEN-END:variables
 }

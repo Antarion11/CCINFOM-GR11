@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List; 
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 
@@ -98,6 +99,7 @@ public class menu extends javax.swing.JFrame {
         jLabel106.setText("Product Menu");
 
         updateProduct.setText("Update");
+        updateProduct.addActionListener(this::updateProductActionPerformed);
 
         addProduct.setText("Add");
         addProduct.addActionListener(this::addProductActionPerformed);
@@ -191,6 +193,7 @@ public class menu extends javax.swing.JFrame {
         jLabel102.setText("Customer Menu");
 
         updateCustomer.setText("Update");
+        updateCustomer.addActionListener(this::updateCustomerActionPerformed);
 
         addCustomer.setText("Add");
         addCustomer.addActionListener(this::addCustomerActionPerformed);
@@ -590,6 +593,42 @@ public class menu extends javax.swing.JFrame {
         
         
     }//GEN-LAST:event_addProductActionPerformed
+
+    private void updateProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateProductActionPerformed
+    JTable productTable = prodTable; // Use your actual table variable name
+    
+    int selectedRow = productTable.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a product row to update.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    
+    // 1. Get the Primary Key (ProductID) from the first column (index 0)
+    Object idObject = productTable.getModel().getValueAt(selectedRow, 0);
+    int productID = Integer.parseInt(idObject.toString());
+    
+    // 2. Open the Update Form
+    addProduct updateForm = new addProduct(this, productID);
+    updateForm.setVisible(true);
+
+    }//GEN-LAST:event_updateProductActionPerformed
+
+    private void updateCustomerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateCustomerActionPerformed
+        JTable custTable = customerTable;
+        
+        int selectedRow = custTable.getSelectedRow();
+        if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a customer row to update.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+        return;
+        }
+        
+        Object idObject = custTable.getModel().getValueAt(selectedRow,0);
+        int customerID = Integer.parseInt(idObject.toString());
+      
+        addCustomer updateForm = new addCustomer(this, customerID);
+        updateForm.setVisible(true);
+        
+    }//GEN-LAST:event_updateCustomerActionPerformed
 
     private void initProductTable() {
    

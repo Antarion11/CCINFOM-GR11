@@ -12,12 +12,21 @@ import javax.swing.JOptionPane;
 public class addCustomer extends javax.swing.JFrame {
     
     private menu parentMenu;
+    private int recordID = -1;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(addCustomer.class.getName());
 
     /**
      * Creates new form addCustomer
      */
+    public addCustomer(menu parent, int customerID) {
+        this(parent);
+        this.recordID = customerID;
+        loadCustomerData(customerID);
+        this.setTitle("Update Existing Customer");
+        submitBttn.setText("Save");
+    }
+    
     public addCustomer(menu parent) {
         initComponents();
         this.parentMenu = parent;
@@ -165,56 +174,101 @@ public class addCustomer extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_firstNameFieldActionPerformed
 
+    private void loadCustomerData(int id) {
+        String sql = "SELECT FirstName, LastName, Phone, Email, Address FROM Customers WHERE CustomerID = ?";
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, id);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                
+                firstNameField.setText(rs.getString("FirstName"));
+                surnameField.setText(rs.getString("LastName"));
+                phoneField.setText(rs.getString("Phone")); // Check DB column name
+                emailField.setText(rs.getString("Email"));
+                addressField.setText(rs.getString("Address"));
+            }
+        }
+    } catch (SQLException e) {
+        // Handle error
+        JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage(), "DB Error", JOptionPane.ERROR_MESSAGE);
+    }
+        
+   }
+    
     private void submitBttnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitBttnActionPerformed
         String firstName = firstNameField.getText().trim();
         String lastName = surnameField.getText().trim();
         String phone = phoneField.getText().trim();
         String email = emailField.getText().trim();
-        String address = addressField.getText().trim(); // Ensure this matches your component type
+        String address = addressField.getText().trim(); 
 
-        // Simple validation check
+        // Simple validation check (unchanged)
         if (firstName.isEmpty() || lastName.isEmpty() || phone.isEmpty() || email.isEmpty() || address.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all customer details.", "Validation Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // SQL Query: INSERT INTO Customers (FirstName, LastName, Phone, Email, Address)
-        String sql = "INSERT INTO Customers (FirstName, LastName, Phone, Email, Address) VALUES (?, ?, ?, ?, ?)";
+        // ⚠️ CRITICAL LOGIC BLOCK START
+        String sql;
+        String successMessage;
+
+        if (this.recordID == -1) {
+            // ADD NEW RECORD (INSERT)
+            sql = "INSERT INTO Customers (FirstName, LastName, Phone, Email, Address) VALUES (?, ?, ?, ?, ?)";
+            successMessage = "Customer added successfully!";
+        } else {
+            // UPDATE EXISTING RECORD (UPDATE)
+            sql = "UPDATE Customers SET FirstName=?, LastName=?, Phone=?, Email=?, Address=? WHERE CustomerID=?";
+            successMessage = "Customer updated successfully!";
+        }
+        // ⚠️ CRITICAL LOGIC BLOCK END
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
+            // Set parameters 1 through 5 (same for INSERT and UPDATE)
             stmt.setString(1, firstName);
             stmt.setString(2, lastName);
             stmt.setString(3, phone);
             stmt.setString(4, email);
             stmt.setString(5, address);
 
+            if (this.recordID != -1) {
+                // If it's an UPDATE, set the 6th parameter for the WHERE clause
+                stmt.setInt(6, this.recordID);
+            }
+
             int rowsAffected = stmt.executeUpdate();
 
             if (rowsAffected > 0) {
-                ResultSet keys = stmt.getGeneratedKeys();
-                int newCustomerID = -1;
-                if (keys.next()) {
-                    newCustomerID = keys.getInt(1);
+                int finalID = this.recordID;
+
+                // Only retrieve generated keys if it was an INSERT
+                if (this.recordID == -1) {
+                     ResultSet keys = stmt.getGeneratedKeys();
+                     if (keys.next()) {
+                         finalID = keys.getInt(1);
+                     }
                 }
 
                 JOptionPane.showMessageDialog(this, 
-                    "Customer added successfully!\nNew Customer ID: " + newCustomerID, 
+                    successMessage + "\nCustomer ID: " + finalID, 
                     "Success", JOptionPane.INFORMATION_MESSAGE);
 
                 // 1. Refresh the main table
                 parentMenu.loadCustomerData(); 
-                
-                // 2. Close the add window
+
+                // 2. Close the window
                 this.dispose();
 
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to add customer.", "DB Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Failed to process customer record.", "DB Error", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.log(java.util.logging.Level.SEVERE, "SQL Error processing customer record.", e);
             JOptionPane.showMessageDialog(this, 
                 "Database Error: " + e.getMessage(), 
                 "SQL Error", JOptionPane.ERROR_MESSAGE);
