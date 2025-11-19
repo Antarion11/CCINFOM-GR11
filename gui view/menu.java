@@ -6,12 +6,17 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List; 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 
 
 public class menu extends javax.swing.JFrame {
@@ -21,6 +26,25 @@ public class menu extends javax.swing.JFrame {
     private DefaultTableModel customerTableModel; 
     private DefaultTableModel supplierTableModel; 
     private DefaultTableModel transportTableModel;
+    private DefaultTableModel returnRequestTableModel;
+    private DefaultTableModel orderTableModel;
+    private DefaultTableModel stockTableModel;
+    private DefaultTableModel transportLogTableModel;
+
+    private javax.swing.JTable returnRequestTable;
+    private javax.swing.JTable orderTable;
+    private javax.swing.JTable stockTable;
+    private javax.swing.JTable transportLogTable;
+
+    private javax.swing.JTextField searchReturn;
+    private javax.swing.JTextField searchOrder;
+    private javax.swing.JTextField searchStock;
+    private javax.swing.JTextField searchTransLog;
+
+    private javax.swing.JButton addReturnRequestBtn;
+    private javax.swing.JButton addOrderBtn;
+    private javax.swing.JButton addStockBtn;
+    private javax.swing.JButton addTransportLogBtn;
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(menu.class.getName());
 
@@ -40,6 +64,22 @@ public class menu extends javax.swing.JFrame {
         loadSupplierData();
         initTransportTable(); // initialize transport
         loadTransportData();
+        // Setup remaining panels (Return Request, Order, Stock Log, Transport Log)
+        setupReturnRequestPanel();
+        initReturnRequestTable();
+        loadReturnRequestData();
+
+        setupOrderPanel();
+        initOrderTable();
+        loadOrderData();
+
+        setupStockPanel();
+        initStockTable();
+        loadStockData();
+
+        setupTransportLogPanel();
+        initTransportLogTable();
+        loadTransportLogData();
     }
 
     /**
@@ -1006,6 +1046,217 @@ public class menu extends javax.swing.JFrame {
             "SQL Error - Transport", JOptionPane.ERROR_MESSAGE);
     }
 }
+    
+    // ----- Return Request UI/DB -----
+    private void setupReturnRequestPanel() {
+        returnRequestTable = new javax.swing.JTable();
+        searchReturn = new javax.swing.JTextField(15);
+        addReturnRequestBtn = new javax.swing.JButton("Add");
+
+        returnRequestPanel.setLayout(new BorderLayout());
+        javax.swing.JPanel top = new javax.swing.JPanel(new FlowLayout(FlowLayout.LEFT));
+        top.add(new javax.swing.JLabel("Return Requests"));
+        top.add(searchReturn);
+        top.add(addReturnRequestBtn);
+        returnRequestPanel.add(top, BorderLayout.NORTH);
+
+        javax.swing.JScrollPane sp = new javax.swing.JScrollPane(returnRequestTable);
+        returnRequestPanel.add(sp, BorderLayout.CENTER);
+
+        addReturnRequestBtn.addActionListener(evt -> {
+            addReturnRequest frm = new addReturnRequest(this);
+            frm.setVisible(true);
+        });
+
+        searchReturn.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                try {
+                    DefaultTableModel ob = (DefaultTableModel) returnRequestTable.getModel();
+                    TableRowSorter<DefaultTableModel> obj = new TableRowSorter<>(ob);
+                    returnRequestTable.setRowSorter(obj);
+                    obj.setRowFilter(RowFilter.regexFilter(searchReturn.getText()));
+                } catch (Exception ex) { }
+            }
+        });
+    }
+
+    private void initReturnRequestTable() {
+        String[] cols = {"ID", "OrderID", "CustomerID", "ProductID", "Reason", "Date", "Status"};
+        returnRequestTableModel = new DefaultTableModel(cols, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        returnRequestTable.setModel(returnRequestTableModel);
+    }
+
+    public void loadReturnRequestData() {
+        returnRequestTableModel.setRowCount(0);
+        String sql = "SELECT RequestID, OrderID, CustomerID, ProductID, ReturnReason, RequestDate, Status FROM ReturnRequests";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("RequestID"),
+                    rs.getInt("OrderID"),
+                    rs.getInt("CustomerID"),
+                    rs.getInt("ProductID"),
+                    rs.getString("ReturnReason"),
+                    rs.getString("RequestDate"),
+                    rs.getString("Status")
+                };
+                returnRequestTableModel.addRow(row);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Return Request DB Read Error: " + e.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // ----- Orders UI/DB -----
+    private void setupOrderPanel() {
+        orderTable = new javax.swing.JTable();
+        searchOrder = new javax.swing.JTextField(15);
+        addOrderBtn = new javax.swing.JButton("Add");
+        salesPanel.setLayout(new BorderLayout());
+        javax.swing.JPanel top = new javax.swing.JPanel(new FlowLayout(FlowLayout.LEFT));
+        top.add(new javax.swing.JLabel("Orders"));
+        top.add(searchOrder);
+        top.add(addOrderBtn);
+        salesPanel.add(top, BorderLayout.NORTH);
+        salesPanel.add(new javax.swing.JScrollPane(orderTable), BorderLayout.CENTER);
+
+        addOrderBtn.addActionListener(evt -> {
+            addOrder frm = new addOrder(this);
+            frm.setVisible(true);
+        });
+
+        searchOrder.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                try {
+                    DefaultTableModel ob = (DefaultTableModel) orderTable.getModel();
+                    TableRowSorter<DefaultTableModel> obj = new TableRowSorter<>(ob);
+                    orderTable.setRowSorter(obj);
+                    obj.setRowFilter(RowFilter.regexFilter(searchOrder.getText()));
+                } catch (Exception ex) { }
+            }
+        });
+    }
+
+    private void initOrderTable() {
+        String[] cols = {"OrderID", "CustomerID", "OrderDate", "Status"};
+        orderTableModel = new DefaultTableModel(cols, 0) { @Override public boolean isCellEditable(int r, int c){return false;} };
+        orderTable.setModel(orderTableModel);
+    }
+
+    public void loadOrderData() {
+        orderTableModel.setRowCount(0);
+        String sql = "SELECT OrderID, CustomerID, OrderDate, OrderStatus FROM Orders";
+        try (Connection conn = DBConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Object[] row = { rs.getInt("OrderID"), rs.getInt("CustomerID"), rs.getString("OrderDate"), rs.getString("OrderStatus") };
+                orderTableModel.addRow(row);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Order DB Read Error: " + e.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // ----- Stock Log UI/DB -----
+    private void setupStockPanel() {
+        stockTable = new javax.swing.JTable();
+        searchStock = new javax.swing.JTextField(15);
+        addStockBtn = new javax.swing.JButton("Add");
+        stockPanel.setLayout(new BorderLayout());
+        javax.swing.JPanel top = new javax.swing.JPanel(new FlowLayout(FlowLayout.LEFT));
+        top.add(new javax.swing.JLabel("Stock Log"));
+        top.add(searchStock);
+        top.add(addStockBtn);
+        stockPanel.add(top, BorderLayout.NORTH);
+        stockPanel.add(new javax.swing.JScrollPane(stockTable), BorderLayout.CENTER);
+
+        addStockBtn.addActionListener(evt -> {
+            addStockLog frm = new addStockLog(this);
+            frm.setVisible(true);
+        });
+
+        searchStock.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                try {
+                    DefaultTableModel ob = (DefaultTableModel) stockTable.getModel();
+                    TableRowSorter<DefaultTableModel> obj = new TableRowSorter<>(ob);
+                    stockTable.setRowSorter(obj);
+                    obj.setRowFilter(RowFilter.regexFilter(searchStock.getText()));
+                } catch (Exception ex) { }
+            }
+        });
+    }
+
+    private void initStockTable() {
+        String[] cols = {"ID","SupplierID","ProductID","Quantity","Type","Date"};
+        stockTableModel = new DefaultTableModel(cols,0) { @Override public boolean isCellEditable(int r,int c){return false;} };
+        stockTable.setModel(stockTableModel);
+    }
+
+    public void loadStockData() {
+        stockTableModel.setRowCount(0);
+        String sql = "SELECT StockLogID, SupplierID, ProductID, Quantity, TransactionType, TransactionDate FROM StockLogs";
+        try (Connection conn = DBConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Object[] row = { rs.getInt("StockLogID"), rs.getInt("SupplierID"), rs.getInt("ProductID"), rs.getInt("Quantity"), rs.getString("TransactionType"), rs.getString("TransactionDate") };
+                stockTableModel.addRow(row);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Stock Log DB Read Error: " + e.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // ----- Transport Log UI/DB -----
+    private void setupTransportLogPanel() {
+        transportLogTable = new javax.swing.JTable();
+        searchTransLog = new javax.swing.JTextField(15);
+        addTransportLogBtn = new javax.swing.JButton("Add");
+        transLogPanel.setLayout(new BorderLayout());
+        javax.swing.JPanel top = new javax.swing.JPanel(new FlowLayout(FlowLayout.LEFT));
+        top.add(new javax.swing.JLabel("Transport Logs"));
+        top.add(searchTransLog);
+        top.add(addTransportLogBtn);
+        transLogPanel.add(top, BorderLayout.NORTH);
+        transLogPanel.add(new javax.swing.JScrollPane(transportLogTable), BorderLayout.CENTER);
+
+        addTransportLogBtn.addActionListener(evt -> {
+            addTransportLog frm = new addTransportLog(this);
+            frm.setVisible(true);
+        });
+
+        searchTransLog.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                try {
+                    DefaultTableModel ob = (DefaultTableModel) transportLogTable.getModel();
+                    TableRowSorter<DefaultTableModel> obj = new TableRowSorter<>(ob);
+                    transportLogTable.setRowSorter(obj);
+                    obj.setRowFilter(RowFilter.regexFilter(searchTransLog.getText()));
+                } catch (Exception ex) { }
+            }
+        });
+    }
+
+    private void initTransportLogTable() {
+        String[] cols = {"LogID","TransportID","RequestID","Delivery","Arrival","Status"};
+        transportLogTableModel = new DefaultTableModel(cols,0) { @Override public boolean isCellEditable(int r,int c){return false;} };
+        transportLogTable.setModel(transportLogTableModel);
+    }
+
+    public void loadTransportLogData() {
+        transportLogTableModel.setRowCount(0);
+        String sql = "SELECT LogID, TransportID, RequestID, DeliveryDate, ArrivalDate, Status FROM TransportLogs";
+        try (Connection conn = DBConnection.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Object[] row = { rs.getInt("LogID"), rs.getInt("TransportID"), rs.getInt("RequestID"), rs.getString("DeliveryDate"), rs.getString("ArrivalDate"), rs.getString("Status") };
+                transportLogTableModel.addRow(row);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Transport Log DB Read Error: " + e.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     
     /**
      * @param args the command line arguments
