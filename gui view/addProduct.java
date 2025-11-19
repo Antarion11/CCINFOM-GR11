@@ -31,7 +31,7 @@ public class addProduct extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         condField = new JComboBox<>(new String[]{"New", "Used", "Refurbished", "Damaged"});
         statusField = new JComboBox<>(new String[]{"In Stock", "Low Stock", "Out of Stock"});
-        setTitle("Add New Product");
+        this.setTitle("Add New Product");
         
     }
     // constructor for updating product

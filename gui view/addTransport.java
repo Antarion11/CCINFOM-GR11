@@ -15,14 +15,26 @@ public class addTransport extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(addTransport.class.getName());
 
     private menu parentMenu;
+    private int transportID = -1;
     /**
      * Creates new form addTransport
      */
+    
+    // constructor for adding
     public addTransport(menu parent) {
         this.parentMenu = parent;
         initComponents();
+        this.setTitle("Add Transport Service");
         this.setResizable(false);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+    }
+    
+    // constructor for updating
+    public addTransport(menu parent, int id) {
+        this(parent);
+        this.transportID = id;
+        this.setTitle("Update Transport Service");
+        loadTransportData(id);
     }
     public addTransport() {
         initComponents();
@@ -139,42 +151,64 @@ public class addTransport extends javax.swing.JFrame {
             return;
         }
 
-        String sql = "INSERT INTO Transports (ContactPerson, Phone, CourierCompany) VALUES (?, ?, ?)";
+        String sql;
+        String successMessage;
+
+        if (this.transportID == -1) {
+            // ADD NEW RECORD (INSERT)
+            sql = "INSERT INTO Transports (ContactPerson, Phone, CourierCompany) VALUES (?, ?, ?)";
+            successMessage = "Transport record added successfully!";
+        } else {
+            // UPDATE EXISTING RECORD (UPDATE)
+            sql = "UPDATE Transports SET ContactPerson=?, Phone=?, CourierCompany=? WHERE TransportID=?";
+            successMessage = "Transport record updated successfully!";
+        }
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             // Only use Statement.RETURN_GENERATED_KEYS if it's an INSERT
+             PreparedStatement stmt = conn.prepareStatement(sql, this.transportID == -1 ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS)) {
 
+            // Set parameters 1 through 3 (same for INSERT and UPDATE)
             stmt.setString(1, contactPerson);
             stmt.setString(2, phone);
             stmt.setString(3, courierCompany);
 
+            if (this.transportID != -1) {
+                // Set the 4th parameter for the WHERE clause in the UPDATE statement
+                stmt.setInt(4, this.transportID); 
+            }
+
             int rowsAffected = stmt.executeUpdate();
 
             if (rowsAffected > 0) {
-                ResultSet keys = stmt.getGeneratedKeys();
-                int newTransportID = -1;
-                if (keys.next()) {
-                    newTransportID = keys.getInt(1);
+                int finalID = this.transportID;
+
+                // Only retrieve generated keys if it was an INSERT
+                if (this.transportID == -1) {
+                     ResultSet keys = stmt.getGeneratedKeys();
+                     if (keys.next()) {
+                         finalID = keys.getInt(1);
+                     }
                 }
 
                 JOptionPane.showMessageDialog(this, 
-                    "Transport record added successfully!\nNew Transport ID: " + newTransportID, 
+                    successMessage + "\nTransport ID: " + finalID, 
                     "Success", JOptionPane.INFORMATION_MESSAGE);
 
-                // 1. Refresh the main table
+                // Refresh the main table
                 if (parentMenu != null) {
-                    parentMenu.loadTransportData(); // <-- Must be updated in menu.java
+                    parentMenu.loadTransportData(); 
                 }
-                
-                // 2. Close the add window
+
+                // Close the window
                 this.dispose();
 
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to add transport record.", "DB Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Failed to process transport record.", "DB Error", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (SQLException e) {
-            logger.log(java.util.logging.Level.SEVERE, "SQL Error adding transport record", e);
+            logger.log(java.util.logging.Level.SEVERE, "SQL Error processing transport record.", e);
             JOptionPane.showMessageDialog(this, 
                 "Database Error: " + e.getMessage(), 
                 "SQL Error", JOptionPane.ERROR_MESSAGE);
@@ -182,6 +216,25 @@ public class addTransport extends javax.swing.JFrame {
     
     }//GEN-LAST:event_submitBttnActionPerformed
 
+    public void loadTransportData(int id) {
+        String sql = "SELECT ContactPerson, Phone, CourierCompany FROM Transports WHERE TransportID = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Populate fields with current data
+                    contactPersonField.setText(rs.getString("ContactPerson"));
+                    phoneField.setText(rs.getString("Phone"));
+                    courierField.setText(rs.getString("CourierCompany"));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(java.util.logging.Level.SEVERE, "Error loading transport data for update.", e);
+            JOptionPane.showMessageDialog(this, "Error loading transport data: " + e.getMessage(), "DB Load Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     /**
      * @param args the command line arguments
      */

@@ -284,6 +284,7 @@ public class menu extends javax.swing.JFrame {
         suppLabel.setText("Supplier Menu");
 
         updateSupplier.setText("Update");
+        updateSupplier.addActionListener(this::updateSupplierActionPerformed);
 
         addSupplier.setText("Add");
         addSupplier.addActionListener(this::addSupplierActionPerformed);
@@ -379,6 +380,7 @@ public class menu extends javax.swing.JFrame {
         jLabel104.setText("Transport Menu");
 
         updateTransport.setText("Update");
+        updateTransport.addActionListener(this::updateTransportActionPerformed);
 
         addTransport.setText("Add");
         addTransport.addActionListener(this::addTransportActionPerformed);
@@ -629,6 +631,44 @@ public class menu extends javax.swing.JFrame {
         updateForm.setVisible(true);
         
     }//GEN-LAST:event_updateCustomerActionPerformed
+
+    private void updateSupplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateSupplierActionPerformed
+        JTable suppTable = supplierTable; // Use your actual table variable name
+    
+        int selectedRow = suppTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a supplier row to update.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Get the Primary Key (SupplierID) from the first column (index 0)
+        Object idObject = suppTable.getModel().getValueAt(selectedRow, 0);
+        int supplierID = Integer.parseInt(idObject.toString());
+
+        // Open the Update Form
+        // Pass the parent menu AND the ID
+        addSupplier updateForm = new addSupplier(this, supplierID);
+        updateForm.setVisible(true);
+    }//GEN-LAST:event_updateSupplierActionPerformed
+
+    private void updateTransportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateTransportActionPerformed
+        JTable transpoTable = transportTable; // Use your actual table variable name
+    
+        int selectedRow = transpoTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a transport row to update.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 1. Get the Primary Key (TransportID) from the first column (index 0)
+        Object idObject = transpoTable.getModel().getValueAt(selectedRow, 0);
+        int transportID = Integer.parseInt(idObject.toString());
+
+        // 2. Open the Update Form
+        // Pass the parent menu AND the ID
+        addTransport updateForm = new addTransport(this, transportID);
+        updateForm.setVisible(true);
+    }//GEN-LAST:event_updateTransportActionPerformed
 
     private void initProductTable() {
    

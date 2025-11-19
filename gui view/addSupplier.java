@@ -19,16 +19,29 @@ public class addSupplier extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(addSupplier.class.getName());
     
     private menu parentMenu; // reference to menu
+    private int supplierId = -1;
     /**
      * Creates new form addSupplier
      */
+    
+    // Constructor for adding supplier
     public addSupplier(menu parent) {
         this.parentMenu = parent;
         initComponents();
+        this.setTitle("Add Supplier");
         this.setResizable(false);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         
     }
+    
+    public addSupplier(menu parent, int id) {
+        this(parent);
+        this.supplierId = id;
+        this.setTitle("Update Supplier");
+        loadSupplierData(id);
+    }
+    
+    // default constructor
     public addSupplier() {
         initComponents();
         this.setResizable(false);
@@ -179,45 +192,66 @@ public class addSupplier extends javax.swing.JFrame {
             return;
         }
 
-        // SQL Query: INSERT INTO Suppliers (CompanyName, ContactPerson, Phone, Email, Address)
-        String sql = "INSERT INTO Suppliers (CompanyName, ContactPerson, Phone, Email, Address) VALUES (?, ?, ?, ?, ?)";
+        String sql;
+        String successMessage;
+    
+        if (this.supplierId == -1) {
+            // ADD NEW RECORD (INSERT)
+            sql = "INSERT INTO Suppliers (CompanyName, ContactPerson, Phone, Email, Address) VALUES (?, ?, ?, ?, ?)";
+            successMessage = "Supplier added successfully!";
+        } else {
+            // UPDATE EXISTING RECORD (UPDATE)
+            sql = "UPDATE Suppliers SET CompanyName=?, ContactPerson=?, Phone=?, Email=?, Address=? WHERE SupplierID=?";
+            successMessage = "Supplier updated successfully!";
+        }
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             // Only use Statement.RETURN_GENERATED_KEYS if it's an INSERT
+             PreparedStatement stmt = conn.prepareStatement(sql, this.supplierId == -1 ? Statement.RETURN_GENERATED_KEYS : Statement.NO_GENERATED_KEYS)) {
 
+            // Set parameters 1 through 5 (same for INSERT and UPDATE)
             stmt.setString(1, companyName);
             stmt.setString(2, contactPerson);
             stmt.setString(3, phone);
             stmt.setString(4, email);
             stmt.setString(5, address);
 
+            if (this.supplierId != -1) {
+                // Set the 6th parameter for the WHERE clause in the UPDATE statement
+                stmt.setInt(6, this.supplierId); 
+            }
+
             int rowsAffected = stmt.executeUpdate();
 
             if (rowsAffected > 0) {
-                ResultSet keys = stmt.getGeneratedKeys();
-                int newSupplierID = -1;
-                if (keys.next()) {
-                    newSupplierID = keys.getInt(1);
+                int finalID = this.supplierId;
+
+                // Only retrieve generated keys if it was an INSERT
+                if (this.supplierId == -1) {
+                     ResultSet keys = stmt.getGeneratedKeys();
+                     if (keys.next()) {
+                         finalID = keys.getInt(1);
+                     }
                 }
 
                 JOptionPane.showMessageDialog(this, 
-                    "Supplier added successfully!\nNew Supplier ID: " + newSupplierID, 
+                    successMessage + "\nSupplier ID: " + finalID, 
                     "Success", JOptionPane.INFORMATION_MESSAGE);
 
-                // 1. Refresh the main table
+                // Refresh the main table
                 if (parentMenu != null) {
-                    parentMenu.loadSupplierData(); // <-- Assuming this method exists in menu.java
+                    parentMenu.loadSupplierData(); 
                 }
-                
-                // 2. Close the add window
+
+                // Close the window
                 this.dispose();
 
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to add supplier.", "DB Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Failed to process supplier record.", "DB Error", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (SQLException e) {
-            logger.log(java.util.logging.Level.SEVERE, "SQL Error adding supplier", e);
+            logger.log(java.util.logging.Level.SEVERE, "SQL Error processing supplier record.", e);
             JOptionPane.showMessageDialog(this, 
                 "Database Error: " + e.getMessage(), 
                 "SQL Error", JOptionPane.ERROR_MESSAGE);
@@ -225,6 +259,29 @@ public class addSupplier extends javax.swing.JFrame {
     
     }//GEN-LAST:event_submitBttnActionPerformed
 
+    
+    public void loadSupplierData(int id) {
+        String sql = "SELECT CompanyName, ContactPerson, Phone, Email, Address FROM Suppliers WHERE SupplierID = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Populate fields with current data
+                    companyField.setText(rs.getString("CompanyName"));
+                    contactPersonField.setText(rs.getString("ContactPerson"));
+                    phoneField.setText(rs.getString("Phone"));
+                    emailField.setText(rs.getString("Email"));
+                    addressField.setText(rs.getString("Address"));
+                }
+            }
+        } catch (SQLException e) {
+            logger.log(java.util.logging.Level.SEVERE, "Error loading supplier data for update.", e);
+            JOptionPane.showMessageDialog(this, "Error loading supplier data: " + e.getMessage(), "DB Load Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+    }
     /**
      * @param args the command line arguments
      */
