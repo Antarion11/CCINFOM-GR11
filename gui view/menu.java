@@ -9,7 +9,9 @@ import java.sql.Statement;
 import java.util.List; 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 
 public class menu extends javax.swing.JFrame {
@@ -58,6 +60,7 @@ public class menu extends javax.swing.JFrame {
         addProduct = new javax.swing.JButton();
         jScrollPane6 = new javax.swing.JScrollPane();
         prodTable = new javax.swing.JTable();
+        searchProd = new javax.swing.JTextField();
         customerPanel = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel102 = new javax.swing.JLabel();
@@ -66,6 +69,7 @@ public class menu extends javax.swing.JFrame {
         addCustomer = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         customerTable = new javax.swing.JTable();
+        searchCust = new javax.swing.JTextField();
         supplierPanel = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         suppLabel = new javax.swing.JLabel();
@@ -74,6 +78,7 @@ public class menu extends javax.swing.JFrame {
         addSupplier = new javax.swing.JButton();
         jScrollPane4 = new javax.swing.JScrollPane();
         supplierTable = new javax.swing.JTable();
+        searchSupp = new javax.swing.JTextField();
         transportPanel = new javax.swing.JPanel();
         jPanel31 = new javax.swing.JPanel();
         jLabel104 = new javax.swing.JLabel();
@@ -82,6 +87,7 @@ public class menu extends javax.swing.JFrame {
         addTransport = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
         transportTable = new javax.swing.JTable();
+        searchTranspo = new javax.swing.JTextField();
         returnRequestPanel = new javax.swing.JPanel();
         salesPanel = new javax.swing.JPanel();
         stockPanel = new javax.swing.JPanel();
@@ -94,6 +100,7 @@ public class menu extends javax.swing.JFrame {
         setTitle("Model Kit Store Return System");
 
         jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.LEFT);
+        jTabbedPane1.setToolTipText("");
 
         jLabel106.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel106.setText("Product Menu");
@@ -137,6 +144,19 @@ public class menu extends javax.swing.JFrame {
         ));
         jScrollPane6.setViewportView(prodTable);
 
+        searchProd.setForeground(new java.awt.Color(204, 204, 204));
+        searchProd.setText("Search");
+        searchProd.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchProdMouseClicked(evt);
+            }
+        });
+        searchProd.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchProdKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
@@ -147,6 +167,8 @@ public class menu extends javax.swing.JFrame {
                         .addGap(20, 20, 20)
                         .addComponent(jLabel106)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(searchProd, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel10Layout.createSequentialGroup()
                         .addContainerGap()
@@ -160,8 +182,10 @@ public class menu extends javax.swing.JFrame {
                 .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel10Layout.createSequentialGroup()
-                        .addGap(9, 9, 9)
-                        .addComponent(jLabel106)))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel106)
+                            .addComponent(searchProd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
                 .addContainerGap())
@@ -231,6 +255,19 @@ public class menu extends javax.swing.JFrame {
         ));
         jScrollPane3.setViewportView(customerTable);
 
+        searchCust.setForeground(new java.awt.Color(204, 204, 204));
+        searchCust.setText("Search");
+        searchCust.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchCustMouseClicked(evt);
+            }
+        });
+        searchCust.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchCustKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -241,6 +278,8 @@ public class menu extends javax.swing.JFrame {
                         .addGap(20, 20, 20)
                         .addComponent(jLabel102)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(searchCust, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -254,8 +293,10 @@ public class menu extends javax.swing.JFrame {
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(9, 9, 9)
-                        .addComponent(jLabel102)))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel102)
+                            .addComponent(searchCust, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
                 .addContainerGap())
@@ -322,6 +363,20 @@ public class menu extends javax.swing.JFrame {
         ));
         jScrollPane4.setViewportView(supplierTable);
 
+        searchSupp.setForeground(new java.awt.Color(204, 204, 204));
+        searchSupp.setText("Search");
+        searchSupp.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchSuppMouseClicked(evt);
+            }
+        });
+        searchSupp.addActionListener(this::searchSuppActionPerformed);
+        searchSupp.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchSuppKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -332,6 +387,8 @@ public class menu extends javax.swing.JFrame {
                         .addGap(20, 20, 20)
                         .addComponent(suppLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(searchSupp, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel6Layout.createSequentialGroup()
                         .addContainerGap()
@@ -346,8 +403,10 @@ public class menu extends javax.swing.JFrame {
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel6Layout.createSequentialGroup()
-                        .addGap(9, 9, 9)
-                        .addComponent(suppLabel)))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(suppLabel)
+                            .addComponent(searchSupp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
                 .addContainerGap())
@@ -418,6 +477,19 @@ public class menu extends javax.swing.JFrame {
         ));
         jScrollPane5.setViewportView(transportTable);
 
+        searchTranspo.setForeground(new java.awt.Color(204, 204, 204));
+        searchTranspo.setText("Search");
+        searchTranspo.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchTranspoMouseClicked(evt);
+            }
+        });
+        searchTranspo.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                searchTranspoKeyReleased(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel31Layout = new javax.swing.GroupLayout(jPanel31);
         jPanel31.setLayout(jPanel31Layout);
         jPanel31Layout.setHorizontalGroup(
@@ -426,6 +498,8 @@ public class menu extends javax.swing.JFrame {
                 .addGap(20, 20, 20)
                 .addComponent(jLabel104)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(searchTranspo, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel32, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(jPanel31Layout.createSequentialGroup()
                 .addContainerGap()
@@ -438,8 +512,10 @@ public class menu extends javax.swing.JFrame {
                 .addGroup(jPanel31Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel32, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel31Layout.createSequentialGroup()
-                        .addGap(9, 9, 9)
-                        .addComponent(jLabel104)))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel31Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel104)
+                            .addComponent(searchTranspo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
                 .addContainerGap())
@@ -605,11 +681,11 @@ public class menu extends javax.swing.JFrame {
         return;
     }
     
-    // 1. Get the Primary Key (ProductID) from the first column (index 0)
+    // Get the Primary Key (ProductID) from the first column (index 0)
     Object idObject = productTable.getModel().getValueAt(selectedRow, 0);
     int productID = Integer.parseInt(idObject.toString());
     
-    // 2. Open the Update Form
+    // Open the Update Form
     addProduct updateForm = new addProduct(this, productID);
     updateForm.setVisible(true);
 
@@ -660,15 +736,63 @@ public class menu extends javax.swing.JFrame {
             return;
         }
 
-        // 1. Get the Primary Key (TransportID) from the first column (index 0)
+        // Get the Primary Key (TransportID) from the first column (index 0)
         Object idObject = transpoTable.getModel().getValueAt(selectedRow, 0);
         int transportID = Integer.parseInt(idObject.toString());
 
-        // 2. Open the Update Form
+        // Open the Update Form
         // Pass the parent menu AND the ID
         addTransport updateForm = new addTransport(this, transportID);
         updateForm.setVisible(true);
     }//GEN-LAST:event_updateTransportActionPerformed
+
+    private void searchSuppActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchSuppActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_searchSuppActionPerformed
+
+    private void searchProdKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchProdKeyReleased
+        DefaultTableModel ob = (DefaultTableModel) prodTable.getModel();
+        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<>(ob);
+        prodTable.setRowSorter(obj);
+        obj.setRowFilter(RowFilter.regexFilter(searchProd.getText()));
+    }//GEN-LAST:event_searchProdKeyReleased
+
+    private void searchProdMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchProdMouseClicked
+        searchProd.setText("");
+    }//GEN-LAST:event_searchProdMouseClicked
+
+    private void searchCustKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchCustKeyReleased
+        DefaultTableModel ob = (DefaultTableModel) customerTable.getModel();
+        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<>(ob);
+        customerTable.setRowSorter(obj);
+        obj.setRowFilter(RowFilter.regexFilter(searchCust.getText()));
+    }//GEN-LAST:event_searchCustKeyReleased
+
+    private void searchCustMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchCustMouseClicked
+        searchCust.setText("");
+    }//GEN-LAST:event_searchCustMouseClicked
+
+    private void searchSuppKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchSuppKeyReleased
+        DefaultTableModel ob = (DefaultTableModel) supplierTable.getModel();
+        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<>(ob);
+        supplierTable.setRowSorter(obj);
+        obj.setRowFilter(RowFilter.regexFilter(searchSupp.getText()));
+    }//GEN-LAST:event_searchSuppKeyReleased
+
+    private void searchSuppMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchSuppMouseClicked
+        searchSupp.setText("");
+    }//GEN-LAST:event_searchSuppMouseClicked
+
+    private void searchTranspoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchTranspoMouseClicked
+        searchTranspo.setText("");
+    }//GEN-LAST:event_searchTranspoMouseClicked
+
+    private void searchTranspoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_searchTranspoKeyReleased
+        DefaultTableModel ob = (DefaultTableModel) transportTable.getModel();
+        TableRowSorter<DefaultTableModel> obj = new TableRowSorter<>(ob);
+        transportTable.setRowSorter(obj);
+        obj.setRowFilter(RowFilter.regexFilter(searchTranspo.getText()));
+    }//GEN-LAST:event_searchTranspoKeyReleased
 
     private void initProductTable() {
    
@@ -939,6 +1063,10 @@ public class menu extends javax.swing.JFrame {
     private javax.swing.JPanel productPanel;
     private javax.swing.JPanel returnRequestPanel;
     private javax.swing.JPanel salesPanel;
+    private javax.swing.JTextField searchCust;
+    private javax.swing.JTextField searchProd;
+    private javax.swing.JTextField searchSupp;
+    private javax.swing.JTextField searchTranspo;
     private javax.swing.JPanel stockPanel;
     private javax.swing.JLabel suppLabel;
     private javax.swing.JPanel supplierPanel;
