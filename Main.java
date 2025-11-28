@@ -637,7 +637,9 @@ public class Main {
             System.out.println("\n--- Add New Product ---");
             System.out.print("Product Name: "); String name = sc.nextLine();
             System.out.print("Manufacturer: "); String manufacturer = sc.nextLine();
-            System.out.print("Condition (e.g., New): "); String condition = sc.nextLine();
+            System.out.print("Condition (New, Used, Refurbished, Damaged): ");
+            String conditionName = sc.nextLine();
+
             System.out.print("Initial Quantity: "); int quantity = Integer.parseInt(sc.nextLine());
             System.out.print("Inventory Status (e.g., In Stock): "); String status = sc.nextLine();
             System.out.print("Supplier ID for this product: "); int supplierId = Integer.parseInt(sc.nextLine());
@@ -645,14 +647,28 @@ public class Main {
             System.out.print("Unit Cost (from supplier): "); double unitCost = Double.parseDouble(sc.nextLine());
 
             conn.setAutoCommit(false); // Start transaction
-            int newProductId = -1;
 
-            // 1. Insert into Products table
-            String productSql = "INSERT INTO Products (ProductName, Manufacturer, `Condition`, AvailableQuantity, InventoryStatus) VALUES (?, ?, ?, ?, ?)";
+            int conditionId = -1;
+            String lookupSql = "SELECT ConditionID FROM Ref_Conditions WHERE ConditionName = ?";
+            try (PreparedStatement lookupStmt = conn.prepareStatement(lookupSql)) {
+                lookupStmt.setString(1, conditionName);
+                ResultSet rs = lookupStmt.executeQuery();
+                if (rs.next()) {
+                    conditionId = rs.getInt("ConditionID");
+                } else {
+                    System.out.println("Error: Invalid Condition name! Please use: New, Used, Refurbished, or Damaged.");
+                    conn.rollback();
+                    return;
+                }
+            }
+
+            int newProductId = -1;
+            String productSql = "INSERT INTO Products (ProductName, Manufacturer, ConditionID, AvailableQuantity, InventoryStatus) VALUES (?, ?, ?, ?, ?)";
+
             try (PreparedStatement productStmt = conn.prepareStatement(productSql, Statement.RETURN_GENERATED_KEYS)) {
                 productStmt.setString(1, name);
                 productStmt.setString(2, manufacturer);
-                productStmt.setString(3, condition);
+                productStmt.setInt(3, conditionId);
                 productStmt.setInt(4, quantity);
                 productStmt.setString(5, status);
 
@@ -670,7 +686,6 @@ public class Main {
                 throw new SQLException("Failed to create product, rolling back.");
             }
 
-            // 2. Link to SupplierProducts table
             String linkSql = "INSERT INTO SupplierProducts (SupplierID, ProductID, SupplierProductCode, UnitCost) VALUES (?, ?, ?, ?)";
             try (PreparedStatement linkStmt = conn.prepareStatement(linkSql)) {
                 linkStmt.setInt(1, supplierId);
@@ -680,12 +695,19 @@ public class Main {
                 linkStmt.executeUpdate();
             }
 
-            conn.commit(); // Commit transaction
+            conn.commit();
             System.out.println("Product added and linked to supplier successfully!");
 
         } catch (Exception e) {
             System.out.println("Error adding product: " + e.getMessage());
-            // Note: In a real app, you'd call conn.rollback() in the catch block
+            try {
+                Connection conn = DBConnection.getConnection();
+                if (conn != null && !conn.getAutoCommit()) {
+                    conn.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
