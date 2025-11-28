@@ -691,7 +691,12 @@ public class Main {
 
     private static void viewAllProducts() {
         try (Connection conn = DBConnection.getConnection()) {
-            String sql = "SELECT * FROM Products ORDER BY ProductID";
+            String sql = "SELECT p.ProductID, p.Manufacturer, p.ProductName, " +
+                    "       rc.ConditionName, p.AvailableQuantity, p.InventoryStatus " +
+                    "FROM Products p " +
+                    "LEFT JOIN Ref_Conditions rc ON p.ConditionID = rc.ConditionID " +
+                    "ORDER BY p.ProductID";
+
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(sql)) {
                 System.out.println("\n--- All Products ---");
@@ -704,7 +709,7 @@ public class Main {
                             rs.getInt("ProductID"),
                             rs.getString("Manufacturer"),
                             rs.getString("ProductName"),
-                            rs.getString("Condition"),
+                            rs.getString("ConditionName"),
                             rs.getInt("AvailableQuantity"),
                             rs.getString("InventoryStatus"));
                 }
@@ -720,7 +725,11 @@ public class Main {
             System.out.println("\n--- Search Products ---");
             System.out.print("Enter search keyword: "); String keyword = sc.nextLine();
 
-            String sql = "SELECT * FROM Products WHERE ProductName LIKE ? OR Manufacturer LIKE ?";
+            String sql = "SELECT p.ProductID, p.Manufacturer, p.ProductName, " +
+                    "       rc.ConditionName, p.AvailableQuantity " +
+                    "FROM Products p " +
+                    "LEFT JOIN Ref_Conditions rc ON p.ConditionID = rc.ConditionID " +
+                    "WHERE p.ProductName LIKE ? OR p.Manufacturer LIKE ?";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, "%" + keyword + "%");
@@ -738,7 +747,7 @@ public class Main {
                             rs.getInt("ProductID"),
                             rs.getString("Manufacturer"),
                             rs.getString("ProductName"),
-                            rs.getString("Condition"),
+                            rs.getString("ConditionName"),
                             rs.getInt("AvailableQuantity"));
                 }
                 if (!found) { System.out.println("No products found."); }
@@ -747,15 +756,19 @@ public class Main {
             System.out.println("Error searching products: " + e.getMessage());
         }
     }
-
     // Views a single product and its related suppliers
     private static void viewProductDetails() {
         try (Connection conn = DBConnection.getConnection()) {
             System.out.print("\nEnter Product ID: ");
             int productId = Integer.parseInt(sc.nextLine());
 
-            // 1. Get Product Details
-            String prodSql = "SELECT * FROM Products WHERE ProductID = ?";
+            // 1. Get Product Details (FIXED SQL with JOIN)
+            String prodSql = "SELECT p.ProductID, p.ProductName, p.Manufacturer, " +
+                    "       rc.ConditionName, p.AvailableQuantity, p.InventoryStatus " +
+                    "FROM Products p " +
+                    "LEFT JOIN Ref_Conditions rc ON p.ConditionID = rc.ConditionID " +
+                    "WHERE p.ProductID = ?";
+
             try (PreparedStatement stmt = conn.prepareStatement(prodSql)) {
                 stmt.setInt(1, productId);
                 ResultSet rs = stmt.executeQuery();
@@ -765,7 +778,7 @@ public class Main {
                     System.out.println("ID: " + rs.getInt("ProductID"));
                     System.out.println("Name: " + rs.getString("ProductName"));
                     System.out.println("Manufacturer: " + rs.getString("Manufacturer"));
-                    System.out.println("Condition: " + rs.getString("Condition"));
+                    System.out.println("Condition: " + rs.getString("ConditionName"));
                     System.out.println("Quantity: " + rs.getInt("AvailableQuantity"));
                     System.out.println("Status: " + rs.getString("InventoryStatus"));
                 } else {
